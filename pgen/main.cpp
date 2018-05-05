@@ -23,7 +23,7 @@
  *     11. Implement logger class (?)
  *     12. Parse configuration file
  *     13. Parse environment
- *     14. Generate password from regex                        - CRITICAL
+ *     14. Generate password from mask                         - CRITICAL
  *     15. Calculate password entropy                          - CRITICAL
  *
  *  **************************************************************************/
@@ -48,6 +48,16 @@ namespace Options = boost::program_options;
 
 using OptsDescription = boost::program_options::options_description;
 
+const std::string charset(
+    "abcdefghijklmnopqrstuvwxyz"
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "1234567890"
+    "!@#$%^&*()`~-_=+[{]}\\|;:'\",<.>/? "
+);
+
+boost::random::ranlux48 gen;
+boost::random::uniform_int_distribution<> indexDistribution(0, static_cast<int>(charset.size()) - 1);
+
 struct Constants {
     static constexpr auto FALSE = 0;
     static constexpr auto TRUE = 1;
@@ -63,14 +73,23 @@ inline void PrintHelp(const OptsDescription& description) {
 	std::cout << description << "\n";
 }
 
+char getNextCharacter(const char characterMask) {
+    if (characterMask == '*') {
+        return charset[indexDistribution(gen)];
+    }
+
+    return '0';
+}
+
 int main(int argc, char *argv[])
 {
 	size_t n = 1;
 	size_t length = 8;
 
-	boost::regex mask;
+	std::string mask = "********";
 
     boost::optional<size_t> entropy;
+    boost::optional<std::string> inputMask;
 	boost::optional<std::string> configFile;
 
 	try {
@@ -81,8 +100,8 @@ int main(int argc, char *argv[])
 			("password-length,l", Options::value<size_t>(&length)->default_value(8), "Password length")
 			("passwords,n", Options::value<size_t>(&n)->default_value(1), "Number of passwords to generate")
             ("entropy", Options::value(&entropy), "Minimum password entropy tolerance")
+            ("mask,m", Options::value(&inputMask), "Password mask (pattern)")
             ("configuration-file,f", Options::value(&configFile), "Configuration file to use")
-			//("mask,m", Options::value<boost::regex>(&mask)->default_value("[a-zA-Z0-9]{8}"), "Password mask (pattern)")
 			;
 
 		Options::variables_map map;
@@ -118,6 +137,13 @@ int main(int argc, char *argv[])
             }
         }
 
+        if (inputMask) {
+            // TODO: Validate input mask
+            if ((*inputMask).size() != length) {
+
+            }
+        }
+
 		if (configFile) {
 			std::cout << "Config file: " << *configFile << "\n";
 		} else {
@@ -130,16 +156,9 @@ int main(int argc, char *argv[])
 		std::cerr << "[Error]: " << e.what() << "\n";
 	}
 
-	const std::string charset(
-		"abcdefghijklmnopqrstuvwxyz"
-		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-		"1234567890"
-		"!@#$%^&*()"
-		"`~-_=+[{]}\\|;:'\",<.>/? "
-	);
 
-	boost::random::ranlux48 gen;
-	boost::random::uniform_int_distribution<> indexDistribution(0, static_cast<int>(charset.size()) - 1);
+
+
 
 	std::cout << "\n\n";
 

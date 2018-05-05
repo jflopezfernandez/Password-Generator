@@ -1,7 +1,7 @@
 
 /** ***************************************************************************
  *
- *							Password Generator
+ *                             Password Generator
  *
  *  ***************************************************************************
  *
@@ -10,17 +10,17 @@
  *  Date:	05-May-2018
  *
  *  TODO:
- *		1. Pass in length of password						   - DONE
- *		2. Pass in number of passwords to generate			   - DONE
- *		3. Improve random number generation
- *		4. Explore using other distributions
- *		5. Implement program options						   - IN PROGRESS
- *		6. Pass in password charset rule (regex)
- *		7. Time generation tracker
- *		8. Setup version tracker							   - DONE
- *		9. Create program configuration class/manager?
- *	   10. Customize PRNG
- *	   11. Implement logger class (?)
+ *      1. Pass in length of password                          - DONE
+ *      2. Pass in number of passwords to generate             - DONE
+ *      3. Improve random number generation
+ *      4. Explore using other distributions
+ *      5. Implement program options                           - IN PROGRESS
+ *      6. Pass in password charset rule (regex)
+ *      7. Time generation tracker
+ *      8. Setup version tracker                               - DONE
+ *      9. Create program configuration class/manager?
+ *     10. Customize PRNG
+ *     11. Implement logger class (?)
  *     12. Parse configuration file
  *
  *  **************************************************************************/
@@ -46,12 +46,12 @@ namespace Options = boost::program_options;
 using OptsDescription = boost::program_options::options_description;
 
 struct Constants {
-	static constexpr auto FALSE = 0;
-	static constexpr auto TRUE = 1;
+    static constexpr auto FALSE = 0;
+    static constexpr auto TRUE = 1;
 };
 
 struct Configuration {
-	static constexpr auto verbose = Constants::FALSE;
+    static constexpr auto verbose = Constants::FALSE;
 };
 
 inline void PrintHelp(const OptsDescription& description) {

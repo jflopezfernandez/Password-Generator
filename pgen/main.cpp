@@ -22,6 +22,9 @@
  *     10. Customize PRNG
  *     11. Implement logger class (?)
  *     12. Parse configuration file
+ *     13. Parse environment
+ *     14. Generate password from regex                        - CRITICAL
+ *     15. Calculate password entropy                          - CRITICAL
  *
  *  **************************************************************************/
 
@@ -67,6 +70,7 @@ int main(int argc, char *argv[])
 
 	boost::regex mask;
 
+    boost::optional<size_t> entropy;
 	boost::optional<std::string> configFile;
 
 	try {
@@ -76,7 +80,8 @@ int main(int argc, char *argv[])
 			("version,v", "Display program version")
 			("password-length,l", Options::value<size_t>(&length)->default_value(8), "Password length")
 			("passwords,n", Options::value<size_t>(&n)->default_value(1), "Number of passwords to generate")
-			("configuration-file,f", Options::value(&configFile), "Configuration file to use")
+            ("entropy", Options::value(&entropy), "Minimum password entropy tolerance")
+            ("configuration-file,f", Options::value(&configFile), "Configuration file to use")
 			//("mask,m", Options::value<boost::regex>(&mask)->default_value("[a-zA-Z0-9]{8}"), "Password mask (pattern)")
 			;
 
@@ -104,6 +109,14 @@ int main(int argc, char *argv[])
 		if (map.count("passwords")) {
 			std::cout << "Number of passwords to generate: " << n << "\n";
 		}
+
+        if (entropy) {
+            std::cout << "Minimum password entropy tolerance: " << *entropy << "\n";
+        } else {
+            if (Configuration::verbose) {
+                std::cout << "<No minimum entropy tolerance set>\n";
+            }
+        }
 
 		if (configFile) {
 			std::cout << "Config file: " << *configFile << "\n";

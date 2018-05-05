@@ -69,7 +69,14 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <CodeAnalysisRuleSet>code-check.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <CodeAnalysisRuleSet>code-check.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <EnableCppCoreCheck>true</EnableCppCoreCheck>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -84,11 +91,15 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Libs\Boost\boost_1_67_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Libs\Boost\boost_1_67_0;C:\Libs\GSL-master\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <EnablePREfast>true</EnablePREfast>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>C:\Libs\Boost\boost_1_67_0\stage;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libboost_atomic-vc141-mt-gd-x64-1_67.lib;libboost_chrono-vc141-mt-gd-x64-1_67.lib;libboost_container-vc141-mt-gd-x64-1_67.lib;libboost_context-vc141-mt-gd-x64-1_67.lib;libboost_contract-vc141-mt-gd-x64-1_67.lib;libboost_coroutine-vc141-mt-gd-x64-1_67.lib;libboost_date_time-vc141-mt-gd-x64-1_67.lib;libboost_exception-vc141-mt-gd-x64-1_67.lib;libboost_fiber-vc141-mt-gd-x64-1_67.lib;libboost_filesystem-vc141-mt-gd-x64-1_67.lib;libboost_graph-vc141-mt-gd-x64-1_67.lib;libboost_iostreams-vc141-mt-gd-x64-1_67.lib;libboost_locale-vc141-mt-gd-x64-1_67.lib;libboost_log-vc141-mt-gd-x64-1_67.lib;libboost_log_setup-vc141-mt-gd-x64-1_67.lib;libboost_math_c99-vc141-mt-gd-x64-1_67.lib;libboost_math_c99f-vc141-mt-gd-x64-1_67.lib;libboost_math_c99l-vc141-mt-gd-x64-1_67.lib;libboost_math_tr1-vc141-mt-gd-x64-1_67.lib;libboost_math_tr1f-vc141-mt-gd-x64-1_67.lib;libboost_math_tr1l-vc141-mt-gd-x64-1_67.lib;libboost_numpy36-vc141-mt-gd-x64-1_67.lib;libboost_prg_exec_monitor-vc141-mt-gd-x64-1_67.lib;libboost_program_options-vc141-mt-gd-x64-1_67.lib;libboost_python36-vc141-mt-gd-x64-1_67.lib;libboost_random-vc141-mt-gd-x64-1_67.lib;libboost_regex-vc141-mt-gd-x64-1_67.lib;libboost_serialization-vc141-mt-gd-x64-1_67.lib;libboost_signals-vc141-mt-gd-x64-1_67.lib;libboost_stacktrace_noop-vc141-mt-gd-x64-1_67.lib;libboost_stacktrace_windbg-vc141-mt-gd-x64-1_67.lib;libboost_stacktrace_windbg_cached-vc141-mt-gd-x64-1_67.lib;libboost_system-vc141-mt-gd-x64-1_67.lib;libboost_test_exec_monitor-vc141-mt-gd-x64-1_67.lib;libboost_thread-vc141-mt-gd-x64-1_67.lib;libboost_timer-vc141-mt-gd-x64-1_67.lib;libboost_type_erasure-vc141-mt-gd-x64-1_67.lib;libboost_unit_test_framework-vc141-mt-gd-x64-1_67.lib;libboost_wave-vc141-mt-gd-x64-1_67.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateMapFile>true</GenerateMapFile>
+      <AssemblyDebug>true</AssemblyDebug>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -113,7 +124,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Libs\Boost\boost_1_67_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Libs\Boost\boost_1_67_0;C:\Libs\GSL-master\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

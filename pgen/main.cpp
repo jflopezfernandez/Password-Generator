@@ -13,7 +13,7 @@
  *      1. Pass in length of password                          - DONE
  *      2. Pass in number of passwords to generate             - DONE
  *      3. Improve random number generation
- *      4. Explore using other distributions
+ *      4. Explore using other probability distributions
  *      5. Implement program options                           - IN PROGRESS
  *      6. Pass in password charset rule (regex)
  *      7. Time generation tracker
@@ -25,6 +25,10 @@
  *     13. Parse environment
  *     14. Generate password from mask                         - CRITICAL
  *     15. Calculate password entropy                          - CRITICAL
+ *     16. Write a parser for regexp->string generation        
+ *     17. Generate passwords with random words
+ *     18. Modify words in password Tr0ub&dour style
+ *     19. Accept restricted character set to avoid
  *
  *  **************************************************************************/
 
@@ -42,6 +46,8 @@
 #include <boost/random/random_device.hpp>
 #include <boost/regex.hpp>
 
+#include <gsl/gsl>
+
 #include "version.h"
 
 namespace Options = boost::program_options;
@@ -55,8 +61,10 @@ const std::string charset(
     "!@#$%^&*()`~-_=+[{]}\\|;:'\",<.>/? "
 );
 
+std::string restrictedCharset = "";
+
 boost::random::ranlux48 gen;
-boost::random::uniform_int_distribution<> indexDistribution(0, static_cast<int>(charset.size()) - 1);
+boost::random::uniform_int_distribution<> indexDistribution(0, gsl::narrow<std::size_t, int>(charset.size()) - 1);
 
 struct Constants {
     static constexpr auto FALSE = 0;
@@ -73,23 +81,78 @@ inline void PrintHelp(const OptsDescription& description) {
 	std::cout << description << "\n";
 }
 
+/** Password Mask rules:
+ *
+ *  * - any character
+ *  l - lowercase letter
+ *  L - capital letter
+ *  d - digit
+ *  s - symbol (no whitespace)
+ *  ? - any symbol
+ *
+ */
+
+// Complying with Warning C26451 - (https://docs.microsoft.com/en-us/visualstudio/code-quality/c26451)
+const char LOWERCASE_START = gsl::narrow<char>('a');
+const char UPPERCASE_START = gsl::narrow<char>('A');
+const char ALPHA_RANGE     = gsl::narrow<char>('z' - 'a');
+const char ONE             = gsl::narrow<char>(1);
+
 char getNextCharacter(const char characterMask) {
-    if (characterMask == '*') {
-        return charset[indexDistribution(gen)];
-    }
+    char newCharacter = '\0';
+
+    do {
+        newCharacter = [=](const char mask) -> char {
+            switch (mask) {
+                case '*': {
+                    return charset[indexDistribution(gen)];
+                } break;
+
+                case 'l': {
+                    return charset[(indexDistribution(gen) % ALPHA_RANGE) + LOWERCASE_START - ONE];
+                } break;
+
+                case 'L': {
+                    // TODO: Fix
+                    return charset[indexDistribution(gen)];
+                }
+
+                case 'd': {
+                    // TODO: Fix
+                    return charset[indexDistribution(gen)];
+                }
+
+                case 's': {
+                    // TODO: Fix
+                    return charset[indexDistribution(gen)];
+                }
+
+                case '?': {
+                    // TODO: Fix
+                    return charset[indexDistribution(gen)];
+                }
+
+                default:
+                    return '0';
+            }
+        }(characterMask);
+
+    // TODO: Check the new character is not on the restricted list
+    } while (newCharacter == '\0');
 
     return '0';
 }
 
-int main(int argc, char *argv[])
+int main(int argc, const char const *argv[])
 {
-	size_t n = 1;
+    size_t n = 1;
 	size_t length = 8;
 
 	std::string mask = "********";
 
     boost::optional<size_t> entropy;
     boost::optional<std::string> inputMask;
+    boost::optional<std::string> restrictedCharacters;
 	boost::optional<std::string> configFile;
 
 	try {
@@ -101,6 +164,7 @@ int main(int argc, char *argv[])
 			("passwords,n", Options::value<size_t>(&n)->default_value(1), "Number of passwords to generate")
             ("entropy", Options::value(&entropy), "Minimum password entropy tolerance")
             ("mask,m", Options::value(&inputMask), "Password mask (pattern)")
+            ("restricted,r", Options::value(&restrictedCharacters), "Restricted characters")
             ("configuration-file,f", Options::value(&configFile), "Configuration file to use")
 			;
 
@@ -123,6 +187,19 @@ int main(int argc, char *argv[])
 		if (map.count("password-length")) {
 			std::cout << "\n";
 			std::cout << "Password Length: " << length << "\n";
+
+            if (inputMask) {
+                if ((*inputMask).size() != length) {
+                    std::cerr << "\n[Error]: password length and mask size are not equal.\n";
+                    std::cerr << "\tMask [" << *inputMask << "]\n";
+                    std::cerr << "\tSize: " << (*inputMask).size() << "\n";
+                    std::cerr << "\tPassword Length: " << length << "\n\n";
+
+                    return EXIT_FAILURE;
+                }
+
+                mask = *inputMask;
+            }
 		}
 
 		if (map.count("passwords")) {
@@ -137,11 +214,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (inputMask) {
-            // TODO: Validate input mask
-            if ((*inputMask).size() != length) {
-
-            }
+        if (restrictedCharacters) {
+            restrictedCharset = *restrictedCharacters;
         }
 
 		if (configFile) {
@@ -156,18 +230,16 @@ int main(int argc, char *argv[])
 		std::cerr << "[Error]: " << e.what() << "\n";
 	}
 
-
-
-
-
 	std::cout << "\n\n";
 
 	for (auto count = 0; count < n; count++) {
+        std::ostringstream newPassword { "" };
+
 		for (auto position = 0; position < length; position++) {
-			std::cout << charset[indexDistribution(gen)];
+            newPassword << getNextCharacter(mask[position]);
 		}
 
-		std::cout << "\n";
+		std::cout << newPassword.str() << "\n";
 	}
 
 	std::cout << "\n\n";
